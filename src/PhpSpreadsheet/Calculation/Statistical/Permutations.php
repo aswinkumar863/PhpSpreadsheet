@@ -2,6 +2,7 @@
 
 namespace PhpOffice\PhpSpreadsheet\Calculation\Statistical;
 
+use PhpOffice\PhpSpreadsheet\Calculation\ArrayEnabled;
 use PhpOffice\PhpSpreadsheet\Calculation\Exception;
 use PhpOffice\PhpSpreadsheet\Calculation\Functions;
 use PhpOffice\PhpSpreadsheet\Calculation\MathTrig;
@@ -9,6 +10,8 @@ use PhpOffice\PhpSpreadsheet\Shared\IntOrFloat;
 
 class Permutations
 {
+    use ArrayEnabled;
+
     /**
      * PERMUT.
      *
@@ -21,10 +24,14 @@ class Permutations
      * @param mixed $numObjs Integer number of different objects
      * @param mixed $numInSet Integer number of objects in each permutation
      *
-     * @return float|int|string Number of permutations, or a string containing an error
+     * @return array|float|int|string Number of permutations, or a string containing an error
      */
     public static function PERMUT($numObjs, $numInSet)
     {
+        if (is_array($numObjs) || is_array($numInSet)) {
+            return self::evaluateArrayArguments([self::class, __FUNCTION__], $numObjs, $numInSet);
+        }
+
         $numObjs = Functions::flattenSingleValue($numObjs);
         $numInSet = Functions::flattenSingleValue($numInSet);
 
@@ -52,10 +59,14 @@ class Permutations
      * @param mixed $numObjs Integer number of different objects
      * @param mixed $numInSet Integer number of objects in each permutation
      *
-     * @return float|int|string Number of permutations, or a string containing an error
+     * @return array|float|int|string Number of permutations, or a string containing an error
      */
     public static function PERMUTATIONA($numObjs, $numInSet)
     {
+        if (is_array($numObjs) || is_array($numInSet)) {
+            return self::evaluateArrayArguments([self::class, __FUNCTION__], $numObjs, $numInSet);
+        }
+
         $numObjs = Functions::flattenSingleValue($numObjs);
         $numInSet = Functions::flattenSingleValue($numInSet);
 

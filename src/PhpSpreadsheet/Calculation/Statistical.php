@@ -1308,7 +1308,7 @@ class Statistical
      * @param int $numObjs Number of different objects
      * @param int $numInSet Number of objects in each permutation
      *
-     * @return float|int|string Number of permutations, or a string containing an error
+     * @return array|float|int|string Number of permutations, or a string containing an error
      */
     public static function PERMUT($numObjs, $numInSet)
     {
