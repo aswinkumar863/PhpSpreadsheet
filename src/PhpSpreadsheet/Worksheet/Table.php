@@ -88,7 +88,27 @@ class Table
      */
     public function setName(string $name)
     {
-        $this->name = preg_replace('/\s+/', '_', trim($name)) ?? '';
+        $name = trim($name);
+
+        if (strlen($name) == 1 && in_array($name, ['C', 'c', 'R', 'r'])) {
+            throw new PhpSpreadsheetException('The table name is invalid');
+        }
+        if (strlen($name) > 255) {
+            throw new PhpSpreadsheetException('The table name cannot be longer than 255 characters');
+        }
+        // Check for A1 or R1C1 cell reference notation
+        if (preg_match(Coordinate::A1_COORDINATE_REGEX, $name) ||
+            preg_match('/^R\[?\-?[0-9]*\]?C\[?\-?[0-9]*\]?$/i', $name)) {
+            throw new PhpSpreadsheetException('The table name can\'t be the same as a cell reference');
+        }
+        if (!preg_match('/^[A-Z_\\\\]/i', $name)) {
+            throw new PhpSpreadsheetException('The table name must begin a name with a letter, an underscore character (_), or a backslash (\)');
+        }
+        if (!preg_match('/^[A-Z_\\\\][A-Z0-9\._]+$/i', $name)) {
+            throw new PhpSpreadsheetException('The table name contains invalid characters');
+        }
+
+        $this->name = $name;
 
         return $this;
     }
@@ -216,6 +236,18 @@ class Table
      */
     public function setWorksheet(?Worksheet $worksheet = null)
     {
+        if ($this->name != '' && $worksheet != null) {
+            $spreadsheet = $worksheet->getParent();
+
+            foreach ($spreadsheet->getWorksheetIterator() as $sheet) {
+                foreach ($sheet->getTableCollection() as $table) {
+                    if ($table->getName() == $this->name) {
+                        throw new PhpSpreadsheetException("Workbook already contains a table named '{$this->name}'");
+                    }
+                }
+            }
+        }
+
         $this->workSheet = $worksheet;
 
         return $this;
@@ -341,6 +373,36 @@ class Table
 
         if (isset($this->columns[$column])) {
             unset($this->columns[$column]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Shift an Table Column Rule to a different column.
+     *
+     * Note: This method bypasses validation of the destination column to ensure it is within this Table range.
+     *        Nor does it verify whether any column rule already exists at $toColumn, but will simply override any existing value.
+     *        Use with caution.
+     *
+     * @param string $fromColumn Column name (e.g. A)
+     * @param string $toColumn Column name (e.g. B)
+     *
+     * @return $this
+     */
+    public function shiftColumn($fromColumn, $toColumn)
+    {
+        $fromColumn = strtoupper($fromColumn);
+        $toColumn = strtoupper($toColumn);
+
+        if (($fromColumn !== null) && (isset($this->columns[$fromColumn])) && ($toColumn !== null)) {
+            $this->columns[$fromColumn]->setTable();
+            $this->columns[$fromColumn]->setColumnIndex($toColumn);
+            $this->columns[$toColumn] = $this->columns[$fromColumn];
+            $this->columns[$toColumn]->setTable($this);
+            unset($this->columns[$fromColumn]);
+
+            ksort($this->columns);
         }
 
         return $this;

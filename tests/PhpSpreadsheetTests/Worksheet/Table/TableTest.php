@@ -22,15 +22,78 @@ class TableTest extends SetupTeardown
         self::assertEquals($expectedResult, $result);
     }
 
-    public function testVariousSets(): void
+    /**
+     * @dataProvider validTableNamesProvider
+     */
+    public function testValidTableNames(string $name, string $expected): void
     {
         $sheet = $this->getSheet();
         $table = new Table(self::INITIAL_RANGE, $sheet);
 
-        $result = $table->setName('Table 1');
+        $result = $table->setName($name);
         self::assertInstanceOf(Table::class, $result);
-        // Spaces will be converted to underscore
-        self::assertEquals('Table_1', $table->getName());
+        self::assertEquals($expected, $table->getName());
+    }
+
+    public function validTableNamesProvider(): array
+    {
+        return [
+            ['Table_1', 'Table_1'],
+            ['_table_2', '_table_2'],
+            ['\table_3', '\table_3'],
+            ["	Table_4 \n", 'Table_4'],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidTableNamesProvider
+     */
+    public function testInvalidTableNames(string $name): void
+    {
+        $sheet = $this->getSheet();
+        $table = new Table(self::INITIAL_RANGE, $sheet);
+
+        $this->expectException(PhpSpreadsheetException::class);
+
+        $table->setName($name);
+    }
+
+    public function invalidTableNamesProvider(): array
+    {
+        return [
+            ['C'],
+            ['c'],
+            ['R'],
+            ['r'],
+            ['Z100'],
+            ['Z$100'],
+            ['R1C1'],
+            ['R1C'],
+            ['R11C11'],
+            ['123'],
+            ['=Table'],
+            [bin2hex(random_bytes(255))], // random string with length greater than 255
+        ];
+    }
+
+    public function testUniqueTableName(): void
+    {
+        $this->expectException(PhpSpreadsheetException::class);
+        $sheet = $this->getSheet();
+
+        $table1 = new Table();
+        $table1->setName('Table_1');
+        $sheet->addTable($table1);
+
+        $table2 = new Table();
+        $table2->setName('Table_1');
+        $sheet->addTable($table2);
+    }
+
+    public function testVariousSets(): void
+    {
+        $sheet = $this->getSheet();
+        $table = new Table(self::INITIAL_RANGE, $sheet);
 
         $result = $table->setShowHeaderRow(false);
         self::assertInstanceOf(Table::class, $result);
@@ -143,6 +206,64 @@ class TableTest extends SetupTeardown
             $result = $table->getColumnOffset($columnIndex);
             self::assertEquals($columnOffset, $result);
         }
+    }
+
+    public function testRemoveColumns(): void
+    {
+        $sheet = $this->getSheet();
+        $sheet->fromArray(range('H', 'O'), null, 'H2');
+        $table = new Table(self::INITIAL_RANGE);
+        $table->getColumn('L')->setShowFilterButton(false);
+        $sheet->addTable($table);
+
+        $sheet->removeColumn('K', 2);
+        $result = $table->getRange();
+        self::assertEquals('H2:M256', $result);
+
+        // Check that the prop that was set for column L is no longer set
+        self::assertTrue($table->getColumn('L')->getShowFilterButton());
+    }
+
+    public function testRemoveRows(): void
+    {
+        $sheet = $this->getSheet();
+        $sheet->fromArray(range('H', 'O'), null, 'H2');
+        $table = new Table(self::INITIAL_RANGE);
+        $sheet->addTable($table);
+
+        $sheet->removeRow(42, 128);
+        $result = $table->getRange();
+        self::assertEquals('H2:O128', $result);
+    }
+
+    public function testInsertColumns(): void
+    {
+        $sheet = $this->getSheet();
+        $sheet->fromArray(range('H', 'O'), null, 'H2');
+        $table = new Table(self::INITIAL_RANGE);
+        $table->getColumn('N')->setShowFilterButton(false);
+        $sheet->addTable($table);
+
+        $sheet->insertNewColumnBefore('N', 3);
+        $result = $table->getRange();
+        self::assertEquals('H2:R256', $result);
+
+        // Check that column N no longer has a prop
+        self::assertTrue($table->getColumn('N')->getShowFilterButton());
+        // Check that the prop originally set in column N has been moved to column Q
+        self::assertFalse($table->getColumn('Q')->getShowFilterButton());
+    }
+
+    public function testInsertRows(): void
+    {
+        $sheet = $this->getSheet();
+        $sheet->fromArray(range('H', 'O'), null, 'H2');
+        $table = new Table(self::INITIAL_RANGE);
+        $sheet->addTable($table);
+
+        $sheet->insertNewRowBefore(3, 4);
+        $result = $table->getRange();
+        self::assertEquals('H2:O260', $result);
     }
 
     public function testGetInvalidColumnOffset(): void
