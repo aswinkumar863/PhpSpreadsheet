@@ -1050,7 +1050,7 @@ class ReferenceHelper
                                 $this->adjustTableDeleteRules($columnIndex, $numberOfColumns, $tableColumns, $table);
                             }
                             $startCol = ($columnIndex > $rangeStart[0]) ? $columnIndex : $rangeStart[0];
-    
+
                             //    Shuffle columns in table range
                             if ($numberOfColumns > 0) {
                                 $this->adjustTableInsert($startCol, $numberOfColumns, $rangeEnd[0], $table);
