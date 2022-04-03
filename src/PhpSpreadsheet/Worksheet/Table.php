@@ -97,8 +97,10 @@ class Table
             throw new PhpSpreadsheetException('The table name cannot be longer than 255 characters');
         }
         // Check for A1 or R1C1 cell reference notation
-        if (preg_match(Coordinate::A1_COORDINATE_REGEX, $name) ||
-            preg_match('/^R\[?\-?[0-9]*\]?C\[?\-?[0-9]*\]?$/i', $name)) {
+        if (
+            preg_match(Coordinate::A1_COORDINATE_REGEX, $name) ||
+            preg_match('/^R\[?\-?[0-9]*\]?C\[?\-?[0-9]*\]?$/i', $name)
+        ) {
             throw new PhpSpreadsheetException('The table name can\'t be the same as a cell reference');
         }
         if (!preg_match('/^[A-Z_\\\\]/i', $name)) {
