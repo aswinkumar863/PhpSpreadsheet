@@ -255,7 +255,7 @@ class Table
      *
      * @return int The column offset within the table range
      */
-    public function isColumnInRange($column): int
+    public function isColumnInRange(string $column): int
     {
         if (empty($this->range)) {
             throw new PhpSpreadsheetException('No table range is defined.');

@@ -70,7 +70,7 @@ class Column
     /**
      * Get Table column index as string eg: 'A'.
      */
-    public function getColumnIndex(): ?string
+    public function getColumnIndex(): string
     {
         return $this->columnIndex;
     }
