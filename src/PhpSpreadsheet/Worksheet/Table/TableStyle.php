@@ -213,7 +213,7 @@ class TableStyle
     /**
      * Get this Style's Table.
      */
-    public function getTable(): null|Table
+    public function getTable(): ?Table
     {
         return $this->table;
     }
