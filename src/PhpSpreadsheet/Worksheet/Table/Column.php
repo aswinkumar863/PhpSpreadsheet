@@ -70,7 +70,7 @@ class Column
     /**
      * Get Table column index as string eg: 'A'.
      */
-    public function getColumnIndex(): string
+    public function getColumnIndex(): ?string
     {
         return $this->columnIndex;
     }
@@ -114,7 +114,7 @@ class Column
     /**
      * Get total Row Label.
      */
-    public function getTotalsRowLabel(): string
+    public function getTotalsRowLabel(): ?string
     {
         return $this->totalsRowLabel;
     }
@@ -132,7 +132,7 @@ class Column
     /**
      * Get total Row Function.
      */
-    public function getTotalsRowFunction(): string
+    public function getTotalsRowFunction(): ?string
     {
         return $this->totalsRowFunction;
     }
@@ -150,7 +150,7 @@ class Column
     /**
      * Get total Row Formula.
      */
-    public function getTotalsRowFormula(): string
+    public function getTotalsRowFormula(): ?string
     {
         return $this->totalsRowFormula;
     }
@@ -168,7 +168,7 @@ class Column
     /**
      * Get column Formula.
      */
-    public function getColumnFormula(): string
+    public function getColumnFormula(): ?string
     {
         return $this->columnFormula;
     }
