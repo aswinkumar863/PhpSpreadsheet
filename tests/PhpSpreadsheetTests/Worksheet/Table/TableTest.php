@@ -1,6 +1,8 @@
 <?php
 
-namespace PhpOffice\PhpSpreadsheetTests\Worksheet\Table;use PhpOffice\PhpSpreadsheet\Cell\CellAddress;
+namespace PhpOffice\PhpSpreadsheetTests\Worksheet\Table;
+
+use PhpOffice\PhpSpreadsheet\Cell\CellAddress;
 use PhpOffice\PhpSpreadsheet\Cell\CellRange;
 use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
 use PhpOffice\PhpSpreadsheet\Worksheet\Table;
@@ -135,7 +137,7 @@ class TableTest extends SetupTeardown
 
     /**
      * @dataProvider validTableRangeProvider
-     * 
+     *
      * @param AddressRange|array<int>|string $fullRange
      * @param string $fullRange
      */
