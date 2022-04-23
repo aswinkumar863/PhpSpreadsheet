@@ -4,7 +4,6 @@ namespace PhpOffice\PhpSpreadsheet\Collection;
 
 use Generator;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception as PhpSpreadsheetException;
 use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -152,8 +151,6 @@ class Cells
     {
         $sortKeys = [];
         foreach ($this->getCoordinates() as $coord) {
-            $column = '';
-            $row = 0;
             sscanf($coord, '%[A-Z]%d', $column, $row);
             $sortKeys[sprintf('%09d%3s', $row, $column)] = $coord;
         }
@@ -173,8 +170,6 @@ class Cells
         $col = ['A' => '1A'];
         $row = [1];
         foreach ($this->getCoordinates() as $coord) {
-            $c = '';
-            $r = 0;
             sscanf($coord, '%[A-Z]%d', $c, $r);
             $row[$r] = $r;
             $col[$c] = strlen($c) . $c;
@@ -207,9 +202,6 @@ class Cells
      */
     public function getCurrentColumn()
     {
-        $column = '';
-        $row = 0;
-
         sscanf($this->currentCoordinate ?? '', '%[A-Z]%d', $column, $row);
 
         return $column;
@@ -222,9 +214,6 @@ class Cells
      */
     public function getCurrentRow()
     {
-        $column = '';
-        $row = 0;
-
         sscanf($this->currentCoordinate ?? '', '%[A-Z]%d', $column, $row);
 
         return (int) $row;
@@ -241,24 +230,19 @@ class Cells
     public function getHighestColumn($row = null)
     {
         if ($row === null) {
-            $colRow = $this->getHighestRowAndColumn();
-
-            return $colRow['column'];
+            return $this->getHighestRowAndColumn()['column'];
         }
 
-        $columnList = [1];
+        $maxColumn = '1A';
         foreach ($this->getCoordinates() as $coord) {
-            $c = '';
-            $r = 0;
-
             sscanf($coord, '%[A-Z]%d', $c, $r);
             if ($r != $row) {
                 continue;
             }
-            $columnList[] = Coordinate::columnIndexFromString($c);
+            $maxColumn = max($maxColumn, strlen($c) . $c);
         }
 
-        return Coordinate::stringFromColumnIndex((int) @max($columnList));
+        return substr($maxColumn, 1);
     }
 
     /**
@@ -272,24 +256,19 @@ class Cells
     public function getHighestRow($column = null)
     {
         if ($column === null) {
-            $colRow = $this->getHighestRowAndColumn();
-
-            return $colRow['row'];
+            return $this->getHighestRowAndColumn()['row'];
         }
 
-        $rowList = [0];
+        $maxRow = 1;
         foreach ($this->getCoordinates() as $coord) {
-            $c = '';
-            $r = 0;
-
             sscanf($coord, '%[A-Z]%d', $c, $r);
             if ($c != $column) {
                 continue;
             }
-            $rowList[] = $r;
+            $maxRow = max($maxRow, $r);
         }
 
-        return max($rowList);
+        return $maxRow;
     }
 
     /**
@@ -348,9 +327,6 @@ class Cells
     public function removeRow($row): void
     {
         foreach ($this->getCoordinates() as $coord) {
-            $c = '';
-            $r = 0;
-
             sscanf($coord, '%[A-Z]%d', $c, $r);
             if ($r == $row) {
                 $this->delete($coord);
@@ -366,9 +342,6 @@ class Cells
     public function removeColumn($column): void
     {
         foreach ($this->getCoordinates() as $coord) {
-            $c = '';
-            $r = 0;
-
             sscanf($coord, '%[A-Z]%d', $c, $r);
             if ($c == $column) {
                 $this->delete($coord);
