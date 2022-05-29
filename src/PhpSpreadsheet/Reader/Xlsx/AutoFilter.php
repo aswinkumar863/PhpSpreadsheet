@@ -15,8 +15,14 @@ class AutoFilter
      */
     private $parent;
 
+    /**
+     * @var SimpleXMLElement
+     */
     private $worksheetXml;
 
+    /**
+     * @param Table|Worksheet $parent
+     */
     public function __construct($parent, SimpleXMLElement $worksheetXml)
     {
         $this->parent = $parent;

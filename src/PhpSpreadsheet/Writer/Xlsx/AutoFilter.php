@@ -31,11 +31,9 @@ class AutoFilter extends WriterPart
 
             $columns = $worksheet->getAutoFilter()->getColumns();
             if (count($columns) > 0) {
-                if (count($columns) > 0) {
-                    foreach ($columns as $columnID => $column) {
-                        $colId = $worksheet->getAutoFilter()->getColumnOffset($columnID);
-                        self::writeAutoFilterColumn($objWriter, $column, $colId);
-                    }
+                foreach ($columns as $columnID => $column) {
+                    $colId = $worksheet->getAutoFilter()->getColumnOffset($columnID);
+                    self::writeAutoFilterColumn($objWriter, $column, $colId);
                 }
             }
             $objWriter->endElement();
@@ -50,11 +48,11 @@ class AutoFilter extends WriterPart
         $rules = $column->getRules();
         if (count($rules) > 0) {
             $objWriter->startElement('filterColumn');
-            $objWriter->writeAttribute('colId', $colId);
+            $objWriter->writeAttribute('colId', "$colId");
 
             $objWriter->startElement($column->getFilterType());
             if ($column->getJoin() == Column::AUTOFILTER_COLUMN_JOIN_AND) {
-                $objWriter->writeAttribute('and', 1);
+                $objWriter->writeAttribute('and', '1');
             }
 
             foreach ($rules as $rule) {
@@ -64,7 +62,7 @@ class AutoFilter extends WriterPart
                     ($rule->getValue() === '')
                 ) {
                     //    Filter rule for Blanks
-                    $objWriter->writeAttribute('blank', 1);
+                    $objWriter->writeAttribute('blank', '1');
                 } elseif ($rule->getRuleType() === Rule::AUTOFILTER_RULETYPE_DYNAMICFILTER) {
                     //    Dynamic Filter Rule
                     $objWriter->writeAttribute('type', $rule->getGrouping());
